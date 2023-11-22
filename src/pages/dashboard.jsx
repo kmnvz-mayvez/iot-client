@@ -8,55 +8,68 @@ import {
     Input,
     Button,
     Typography,
-  } from "@material-tailwind/react";
+} from "@material-tailwind/react";
 
 const Dashboard = () => {
-   
+
     const [devices, setDevices] = useState([]);
     const [isLogin, setLogin] = useState(false);
     const [email, setEmail] = useState("");
     const [displayName, setDisplayName] = useState("");
     const [photoUrl, setPhotoUrl] = useState("");
-    const [show,setShow]=useState(false)
+    const [show, setShow] = useState(false)
     const [data, setData] = useState("")
     const [device_name, setDeviceName] = useState("")
     const [device_value, setDeviceValue] = useState("")
     const [device_description, setDeviceDescription] = useState("")
 
-    useEffect(()=>{
-      
-        const getDataDevice = async () =>{
+    useEffect(() => {
+
+        const getDataDevice = async () => {
             if (data) {
                 const response = await axios.get(`https://blue-violet-bighorn-sheep-boot.cyclic.app/user/${data}`)
                 console.log(response.data);
                 setDevices(response.data)
             }
         }
-        
-        const timer = setTimeout(() => {
-                getDataDevice() 
-              }, 1000);
-              return () => clearTimeout(timer);
-    },[data])
 
-    
+        const timer = setTimeout(() => {
+            getDataDevice()
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [data])
+
+
     const handleRegisterdevice = async () => {
         try {
             const response = await axios.post('https://blue-violet-bighorn-sheep-boot.cyclic.app/device', {
-                title: device_name, 
-                description : device_description,
-                value: device_value,
+                title: device_name,
+                description: device_description,
+                value_string: device_value,
                 authorEmail: email
             })
-            console.log(response.data);
-            setShow(false)
+            console.log('Device registration successful:', response.data);
+            setShow(false);
         } catch (error) {
-            console.log(error);
+            console.error('Error registering device:', error);
+
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                console.error('Server responded with:', error.response.data);
+                console.error('Status code:', error.response.status);
+            } else if (error.request) {
+                // The request was made but no response was received
+                console.error('No response received from the server');
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                console.error('Error setting up the request:', error.message);
+            }
         }
-        
+
     }
 
-    const handleLogInWithGoogle = async () => { 
+    const handleLogInWithGoogle = async () => {
         await signInWithPopup(auth, googleProvider)
         console.log(auth.currentUser)
         setPhotoUrl(auth.currentUser.photoURL)
@@ -67,14 +80,14 @@ const Dashboard = () => {
         await axios.post('https://blue-violet-bighorn-sheep-boot.cyclic.app/user', {
             name: auth.currentUser.displayName,
             email: auth.currentUser.email
-          })
-          .then(function (response) {
-            console.log(response.data.id);
-            setData(response.data.id);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
+        })
+            .then(function (response) {
+                console.log(response.data.id);
+                setData(response.data.id);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     }
 
     const handleLogout = async () => {
@@ -87,23 +100,23 @@ const Dashboard = () => {
             setData("")
             setDevices([])
             console.log(response)
-          } catch (error) {
+        } catch (error) {
             console.error(error)
-          }
+        }
     }
-    
+
     return (
         <>
             <div className="bg-gray-200 pb-10">
                 {/* Navigation starts */}
-               
+
                 {/* Navigation ends */}
                 {/* Page title starts */}
                 <div className="bg-gray-800 pt-8 pb-16 relative z-10">
                     <div className="container px-6 mx-auto flex flex-col lg:flex-row items-start lg:items-center justify-between">
                         <div className="flex-col flex lg:flex-row items-start lg:items-center">
                             <div className="flex items-center">
-                                <img className="w-14 border-2 shadow border-gray-600 rounded-full mr-3" src={photoUrl ? photoUrl : "https://cdn.tuk.dev/assets/webapp/master_layouts/boxed_layout/boxed_layout2.jpg" } alt="logo" />
+                                <img className="w-14 border-2 shadow border-gray-600 rounded-full mr-3" src={photoUrl ? photoUrl : "https://cdn.tuk.dev/assets/webapp/master_layouts/boxed_layout/boxed_layout2.jpg"} alt="logo" />
                                 <div>
                                     <h5 className="text-sm text-white leading-4 mb-1">{displayName ? displayName : 'Anonym'}</h5>
                                     <p className="text-xs text-gray-400 leading-4">{email ? email : 'Anonym'}</p>
@@ -122,27 +135,27 @@ const Dashboard = () => {
                         </div>
                         <div className="grid grid-cols-2">
                             {
-                                isLogin ? ( 
+                                isLogin ? (
                                     <div>
-                                        <button 
-                                            aria-label="Continue with google" 
-                                            role="button" 
+                                        <button
+                                            aria-label="Continue with google"
+                                            role="button"
                                             className="focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-700 p-3 border rounded-lg border-gray-700 flex items-center w-full mt-10 hover:bg-gray-400"
                                             onClick={handleLogout}
                                         >
-                                        <p className="text-base font-medium ml-4 text-gray-200">
-                                           Logout
+                                            <p className="text-base font-medium ml-4 text-gray-200">
+                                                Logout
                                             </p>
                                         </button>
                                     </div>
                                 ) : (
                                     <div>
-                                        <button 
-                                            aria-label="Continue with google" 
-                                            role="button" 
+                                        <button
+                                            aria-label="Continue with google"
+                                            role="button"
                                             className="focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-700 p-3 border rounded-lg border-gray-700 flex items-center w-full mt-10 hover:bg-gray-400"
                                             onClick={handleLogInWithGoogle}
-                                        >        
+                                        >
                                             <svg width={19} height={20} viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M18.9892 10.1871C18.9892 9.36767 18.9246 8.76973 18.7847 8.14966H9.68848V11.848H15.0277C14.9201 12.767 14.3388 14.1512 13.047 15.0812L13.0289 15.205L15.905 17.4969L16.1042 17.5173C17.9342 15.7789 18.9892 13.221 18.9892 10.1871Z" fill="#4285F4" />
                                                 <path d="M9.68813 19.9314C12.3039 19.9314 14.4999 19.0455 16.1039 17.5174L13.0467 15.0813C12.2286 15.6682 11.1306 16.0779 9.68813 16.0779C7.12612 16.0779 4.95165 14.3395 4.17651 11.9366L4.06289 11.9465L1.07231 14.3273L1.0332 14.4391C2.62638 17.6946 5.89889 19.9314 9.68813 19.9314Z" fill="#34A853" />
@@ -154,10 +167,10 @@ const Dashboard = () => {
                                     </div>
                                 )
                             }
-                          
-                          
+
+
                             <div>
-                                {show &&  <div className="py-12 w-full h-screen bg-gray-100 dark:bg-gray-900 transition duration-150 ease-in-out z-50 absolute top-0 right-0 bottom-0 left-0" id="modal">
+                                {show && <div className="py-12 w-full h-screen bg-gray-100 dark:bg-gray-900 transition duration-150 ease-in-out z-50 absolute top-0 right-0 bottom-0 left-0" id="modal">
                                     <div role="alert" className="container mx-auto w-full md:w-2/3 max-w-lg">
                                         <div className="relative py-8 px-8 md:px-16 bg-white dark:bg-gray-800 dark:border-gray-700 shadow-md rounded border border-gray-400">
                                             <div className="w-full flex justify-center text-green-400 mb-4">
@@ -169,29 +182,25 @@ const Dashboard = () => {
                                             </div>
                                             <Card className="mt-6 w-96" color="transparent" shadow={false}>
                                                 <Typography variant="h4" color="blue-gray">
-                                                   Register Your Devices
+                                                    Register Your Devices
                                                 </Typography>
-                                                
+
                                                 <Typography color="gray" className="mt-1 font-normal">
                                                     Enter your details to register device.
                                                 </Typography>
-                                                    <div className="mb-4 flex flex-col gap-6">
-                                                        <Input size="lg" label="Name" onChange={(e) => setDeviceName(e.target.value)} />
-                                                        <Input size="lg" label="description"  onChange={ (e) => setDeviceDescription(e.target.value)}/>
-                                                        <Input size="lg" label="Default Value" onChange={(e) => setDeviceValue(e.target.value)}/>
-                                                        
-                                                    </div>
-                                                    <Button className="mt-6" fullWidth onClick={handleRegisterdevice}>
-                                                        Register
-                                                    </Button>
-                                                    <Typography color="gray" className="mt-4 text-center font-normal">
-                                                        I o T By {" "}
-                                                        <a href="#" className="font-medium text-gray-900">
-                                                        Busra IoT
-                                                        </a>
+                                                <div className="mb-4 flex flex-col gap-6">
+                                                    <Input size="lg" label="Name" onChange={(e) => setDeviceName(e.target.value)} />
+                                                    <Input size="lg" label="description" onChange={(e) => setDeviceDescription(e.target.value)} />
+                                                    <Input size="lg" label="Default Value" onChange={(e) => setDeviceValue(e.target.value)} />
+
+                                                </div>
+                                                <Button className="mt-6" fullWidth onClick={handleRegisterdevice}>
+                                                    Register
+                                                </Button>
+                                                <Typography color="gray" className="mt-4 text-center font-normal">
                                                 </Typography>
                                             </Card>
-                                            <div className="cursor-pointer absolute top-0 right-0 mt-4 mr-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 transition duration-150 ease-in-out" onClick={()=>setShow(!show)} >
+                                            <div className="cursor-pointer absolute top-0 right-0 mt-4 mr-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-500 transition duration-150 ease-in-out" onClick={() => setShow(!show)} >
                                                 <svg xmlns="http://www.w3.org/2000/svg" aria-label="Close" className="icon icon-tabler icon-tabler-x" width={20} height={20} viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                                                     <path stroke="none" d="M0 0h24v24H0z" />
                                                     <line x1={18} y1={6} x2={6} y2={18} />
@@ -200,33 +209,33 @@ const Dashboard = () => {
                                             </div>
                                         </div>
                                     </div>
-                            </div>}
+                                </div>}
 
-                            <div className="px-1" id="button">
-                                <button  
-                                    className="text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-700 p-3 border rounded-lg border-gray-700 flex items-center w-full mt-10 hover:bg-gray-400"
-                                    onClick={()=>setShow(!show)}>
-                                    Add device
-                                </button>
+                                <div className="px-1" id="button">
+                                    <button
+                                        className="text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-700 p-3 border rounded-lg border-gray-700 flex items-center w-full mt-10 hover:bg-gray-400"
+                                        onClick={() => setShow(!show)}>
+                                        Add device
+                                    </button>
+                                </div>
                             </div>
-                            </div>
-                        
+
                         </div>
                     </div>
                 </div>
                 {/* Page title ends */}
-                
+
                 <div className="container px-6 mx-auto">
                     {/* Remove class [ h-64 ] when adding a card block */}
                     <div className="rounded relative mt-20 mb-8">{/* Place your content here */}
                         <div className="flex flex-wrap justify-center">
-                        
+
                             {
                                 !!devices.device && (devices.device.map((device) => (
-                                    <DeviceCard key={device.id} data={device} /> 
-                                ))) 
+                                    <DeviceCard key={device.id} data={device} />
+                                )))
                             }
-                            
+
                         </div>
                     </div>
                 </div>
